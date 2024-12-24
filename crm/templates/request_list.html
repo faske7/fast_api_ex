@@ -1,0 +1,29 @@
+{% extends "crm/base.html" %}
+
+{% block content %}
+<h1>Assigned Requests</h1>
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>User</th>ч
+            <th>Amount</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for request in requests %}
+        <tr>
+            <td>{{ request.id }}</td>
+            <td>{{ request.first_name }}</td>
+            <td>{{ request.amount }}</td>
+            <td>{{ request.get_status_display }}</td>
+            <td>
+                <a href="{% url 'crm:request_detail' request.id %}">View</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

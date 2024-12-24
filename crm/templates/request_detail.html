@@ -1,0 +1,107 @@
+{% extends "crm/base.html" %}
+
+{% block content %}
+<h1>Request #{{ request.id }}</h1>
+<p><strong>Пользователь:</strong> {{ request.first_name }}</p>
+<p><strong>Сумма:</strong> {{ request.amount }}</p>
+<p><strong>Отправляем БАТЫ:</strong> {{ request.amount_send }}</p>
+<p><strong>Получаем USDT:</strong> {{ request.amount_come }}</p>
+<p><strong>Получаем RUBLI:</strong> {{ request.amount_come_rub }}</p>
+<p><strong>Статус:</strong> {{ request.get_status_display }}</p>
+
+<h2>Сообщения</h2>
+<ul id="messages-list">
+    {% for message in messages %}
+    <li>
+        <strong>{{ message.sender }}</strong>: {{ message.content }}
+        <br><small>{{ message.created_at }}</small>
+        {% if message.attachment %}
+            <br><a href="{{ message.attachment.url }}" class="popup-link">Скачать вложение</a>
+        {% endif %}
+    </li>
+    {% endfor %}
+</ul>
+
+<h2>Ответ</h2>
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <textarea name="message" rows="4" cols="50" placeholder="Введите ваш ответ..."></textarea><br>
+
+    <!-- Кнопка для автоматической отправки стандартного приветствия -->
+    <button type="button"
+            onclick="
+                // Вставить стандартное приветствие в поле
+                const textArea = document.querySelector('textarea[name=message]');
+                textArea.value = 'Привет, чем помочь?';
+                // Сразу отправить форму
+                textArea.form.submit();
+            ">
+        Отправить стандартное приветствие
+    </button>
+    <div style="display: flex; align-items: center; margin-top: 10px;">
+        <input type="file" name="attachment" style="margin-right: 10px;">
+        <button type="submit">Отправить</button>
+    </div>
+</form>
+
+<form method="post" action="{% url 'crm:close_request' request.id %}" style="margin-top: 20px;">
+    {% csrf_token %}
+    <button type="submit">Закрыть запрос</button>
+</form>
+
+<script>
+    // Функция для обновления списка сообщений
+    function updateMessages() {
+        fetch(window.location.href, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+            .then(response => response.text())
+            .then(html => {
+                // Получение нового списка сообщений из HTML
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const newMessages = doc.querySelector('#messages-list');
+
+                // Обновление текущего списка
+                document.querySelector('#messages-list').innerHTML = newMessages.innerHTML;
+            })
+            .catch(err => console.error('Ошибка обновления сообщений:', err));
+    }
+
+    // Устанавливаем обновление каждые 5 секунд
+    // Функция для открытия ссылки в новом попап-окне
+    document.addEventListener("DOMContentLoaded", function () {
+        const popupLinks = document.querySelectorAll(".popup-link");
+        popupLinks.forEach(link => {
+            link.addEventListener("click", function (event) {
+                event.preventDefault(); // Предотвращает переход по ссылке
+                const url = this.href;
+                window.open(url, "popupWindow", "width=800,height=600,scrollbars=yes");
+            });
+        });
+    });
+    setInterval(updateMessages, 5000);
+    // После загрузки DOM вешаем обработчик на textarea,
+    // чтобы по Enter без Shift сообщение отправлялось автоматически
+    document.addEventListener("DOMContentLoaded", function () {
+        const textArea = document.querySelector('textarea[name="message"]');
+        if (textArea) {
+            textArea.addEventListener('keydown', function (event) {
+                // Если нажата клавиша Enter без Shift
+                if (event.key === 'Enter' && !event.shiftKey) {
+                    event.preventDefault(); // отменяем перевод строки
+                    textArea.form.submit(); // отправляем форму
+                }
+            });
+        }
+
+        // Линки для открытия вложений в попап-окне
+        const popupLinks = document.querySelectorAll(".popup-link");
+        popupLinks.forEach(link => {
+            link.addEventListener("click", function (event) {
+                event.preventDefault(); // Предотвращает переход по ссылке
+                const url = this.href;
+                window.open(url, "popupWindow", "width=800,height=600,scrollbars=yes");
+            });
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends "crm/base.html" %}
+
+{% block content %}
+<h1>Request #{{ request.id }}</h1>
+<p><strong>User:</strong> {{ request.first_name }}</p>
+<p><strong>Amount:</strong> {{ request.amount }}</p>
+<p><strong>Status:</strong> {{ request.get_status_display }}</p>
+
+<h2>Messages</h2>
+<ul>
+    {% for message in messages %}
+    <li>
+        <strong>{{ message.sender }}</strong>: {{ message.content }}
+        <br><small>{{ message.created_at }}</small>
+    </li>
+    {% endfor %}
+</ul>
+
+<h2>Reply</h2>
+<form method="post">
+    {% csrf_token %}
+    <textarea name="message" rows="4" cols="50" placeholder="Enter your reply..."></textarea><br>
+    <button type="submit">Send</button>
+</form>
+
+<form method="post" action="{% url 'close_request' request.id %}">
+    {% csrf_token %}
+    <button type="submit">Close Request</button>
+</form>
+{% endblock %}
