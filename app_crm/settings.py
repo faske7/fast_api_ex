@@ -82,12 +82,12 @@ WSGI_APPLICATION = 'app_crm.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'db_thb24',
-        'USER': 'phuket',
-        'PASSWORD': 'gurman',
-        'HOST': 'db',
-        'PORT': '5432',
+        'ENGINE': ,
+        'NAME': ,
+        'USER': ,
+        'PASSWORD': ,
+        'HOST':,
+        'PORT': ,
     }
 }
 
